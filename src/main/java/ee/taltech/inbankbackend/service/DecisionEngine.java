@@ -8,24 +8,28 @@ import ee.taltech.inbankbackend.exceptions.InvalidPersonalCodeException;
 import ee.taltech.inbankbackend.exceptions.NoValidLoanException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 public class DecisionEngine {
 
     private final EstonianPersonalCodeValidator validator = new EstonianPersonalCodeValidator();
-
-    /**
-    My modified version of calculateApprovedLoan, with the intention of making it more SOLID.
-    I split the logic into smaller methods to follow the SRP.
-    */
-
+    private final PersonalCodeParser personalCodeParser = new PersonalCodeParser();
+    private final AgeValidator ageValidator = new AgeValidator();
 
     public Decision calculateApprovedLoan(String personalCode, Long loanAmount, int loanPeriod)
             throws InvalidPersonalCodeException, InvalidLoanAmountException, InvalidLoanPeriodException,
             NoValidLoanException {
 
         verifyInputs(personalCode, loanAmount, loanPeriod);
-        int creditModifier = getCreditModifier(personalCode);
+        LocalDate birthDate = personalCodeParser.getBirthDate(personalCode);
+        String countryCode = personalCodeParser.getCountryCode(personalCode);
 
+        if (!ageValidator.isEligible(birthDate, countryCode)) {
+            throw new NoValidLoanException(ageValidator.getRejectionReason(birthDate, countryCode));
+        }
+
+        int creditModifier = getCreditModifier(personalCode);
         if (creditModifier == 0) {
             throw new NoValidLoanException("Customer is in debt.");
         }
@@ -49,7 +53,7 @@ public class DecisionEngine {
     }
 
     private double calculateCreditScore(int amount, int period, int creditModifier) {
-        return ((double) creditModifier / amount) * period /10;
+        return ((double) creditModifier / amount) * period / 10;
     }
 
     private int getCreditModifier(String personalCode) {
@@ -80,6 +84,5 @@ public class DecisionEngine {
                 || !(loanPeriod <= DecisionEngineConstants.MAXIMUM_LOAN_PERIOD)) {
             throw new InvalidLoanPeriodException("Invalid loan period!");
         }
-
     }
 }

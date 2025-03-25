@@ -3,9 +3,6 @@ package ee.taltech.inbankbackend.service;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Holds the response data of the REST endpoint.
- */
 @Getter
 @AllArgsConstructor
 public class Decision {
