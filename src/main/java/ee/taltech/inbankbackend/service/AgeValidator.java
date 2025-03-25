@@ -8,9 +8,9 @@ import static ee.taltech.inbankbackend.config.DecisionEngineConstants.MIN_AGE;
 
 public class AgeValidator {
     private static final Map<String, Integer> LIFE_EXPECTANCY = Map.of(
-            "EE", 82,
-            "LV", 75,
-            "LT", 76
+            "EE", 80,
+            "LV", 79,
+            "LT", 78
     );
 
     public boolean isEligible(LocalDate birthDate, String countryCode) {

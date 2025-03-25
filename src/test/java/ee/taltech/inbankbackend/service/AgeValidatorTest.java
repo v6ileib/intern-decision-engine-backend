@@ -31,7 +31,7 @@ class AgeValidatorTest {
 
     @Test
     void testMaxEligibleAgeIsEligible() {
-        LocalDate birthDate = LocalDate.now().minusYears(78);
+        LocalDate birthDate = LocalDate.now().minusYears(75);
         assertTrue(validator.isEligible(birthDate, "EE"));
     }
 

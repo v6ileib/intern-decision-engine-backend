@@ -8,7 +8,9 @@ import ee.taltech.inbankbackend.exceptions.InvalidPersonalCodeException;
 import ee.taltech.inbankbackend.exceptions.NoValidLoanException;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 @Service
 public class DecisionEngine {
@@ -22,7 +24,12 @@ public class DecisionEngine {
             NoValidLoanException {
 
         verifyInputs(personalCode, loanAmount, loanPeriod);
-        LocalDate birthDate = personalCodeParser.getBirthDate(personalCode);
+        LocalDate birthDate;
+        try {
+            birthDate = personalCodeParser.getBirthDate(personalCode);
+        } catch (DateTimeException e) {
+            throw new InvalidPersonalCodeException("Invalid personal ID code!");
+        }
         String countryCode = personalCodeParser.getCountryCode(personalCode);
 
         if (!ageValidator.isEligible(birthDate, countryCode)) {
@@ -73,8 +80,8 @@ public class DecisionEngine {
     private void verifyInputs(String personalCode, Long loanAmount, int loanPeriod)
             throws InvalidPersonalCodeException, InvalidLoanAmountException, InvalidLoanPeriodException {
 
-        if (!validator.isValid(personalCode)) {
-            throw new InvalidPersonalCodeException("Invalid personal ID code!");
+        if (personalCode.length() != 11 || !personalCode.matches("\\d{11}")) {
+            throw new InvalidPersonalCodeException("Personal ID code must be 11 digits.");
         }
         if (!(DecisionEngineConstants.MINIMUM_LOAN_AMOUNT <= loanAmount)
                 || !(loanAmount <= DecisionEngineConstants.MAXIMUM_LOAN_AMOUNT)) {
