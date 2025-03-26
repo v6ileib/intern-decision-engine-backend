@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 @Service
 public class DecisionEngine {
@@ -18,7 +17,11 @@ public class DecisionEngine {
     private final EstonianPersonalCodeValidator validator = new EstonianPersonalCodeValidator();
     private final PersonalCodeHandler personalCodeHandler = new PersonalCodeHandler();
     private final AgeValidator ageValidator = new AgeValidator();
+    private final CreditScoreService creditScoreService;
 
+    public DecisionEngine(CreditScoreService creditScoreService) {
+        this.creditScoreService = creditScoreService;
+    }
     public Decision calculateApprovedLoan(String personalCode, Long loanAmount, int loanPeriod)
             throws InvalidPersonalCodeException, InvalidLoanAmountException, InvalidLoanPeriodException,
             NoValidLoanException {
@@ -56,11 +59,7 @@ public class DecisionEngine {
     }
 
     private boolean isLoanApprovable(int amount, int period, int creditModifier) {
-        return calculateCreditScore(amount, period, creditModifier) >= 0.1;
-    }
-
-    private double calculateCreditScore(int amount, int period, int creditModifier) {
-        return ((double) creditModifier / amount) * period / 10;
+        return creditScoreService.calculate(amount, period, creditModifier) >= 0.1;
     }
 
     private int getCreditModifier(String personalCode) {

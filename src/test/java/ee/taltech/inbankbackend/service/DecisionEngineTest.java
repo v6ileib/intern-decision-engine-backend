@@ -7,17 +7,11 @@ import ee.taltech.inbankbackend.exceptions.InvalidPersonalCodeException;
 import ee.taltech.inbankbackend.exceptions.NoValidLoanException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class DecisionEngineTest {
 
-    @InjectMocks
     private DecisionEngine decisionEngine;
 
     private String debtorPersonalCode;
@@ -27,6 +21,9 @@ class DecisionEngineTest {
 
     @BeforeEach
     void setUp() {
+        CreditScoreService creditScoreService = new CreditScoreServiceImpl();
+        decisionEngine = new DecisionEngine(creditScoreService);
+
         debtorPersonalCode = "37605030299";
         segment1PersonalCode = "50307172740";
         segment2PersonalCode = "38411266610";
@@ -107,6 +104,4 @@ class DecisionEngineTest {
         assertThrows(NoValidLoanException.class,
                 () -> decisionEngine.calculateApprovedLoan(debtorPersonalCode, 10000L, 48));
     }
-
 }
-

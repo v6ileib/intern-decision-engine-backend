@@ -3,4 +3,5 @@ I also liked the usage of Estonian personal code validator, because this library
 The code itself was a basic version of a decision engine and error handling was quite minimal. 
 Although the code itself was quite readable, it still wasn't SOLID enough to ensure future maintainability, 
 because classes and methods were quite clumped together in DecisionEngine, whihc makes future improvements and testing more complicated.
-The biggest shortcoming in my opinion was putting the business logic into the controller class. 
+The biggest shortcoming in my opinion was putting the business logic into the controller class, which also violates SOLID principles. 
+So to make the code more SOLID friendly I encapsulated some of the logic into separate interfaces and also created tests for them.
