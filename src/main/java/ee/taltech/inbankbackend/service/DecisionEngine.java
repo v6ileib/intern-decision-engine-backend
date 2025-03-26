@@ -16,7 +16,7 @@ import java.time.format.DateTimeParseException;
 public class DecisionEngine {
 
     private final EstonianPersonalCodeValidator validator = new EstonianPersonalCodeValidator();
-    private final PersonalCodeParser personalCodeParser = new PersonalCodeParser();
+    private final PersonalCodeHandler personalCodeHandler = new PersonalCodeHandler();
     private final AgeValidator ageValidator = new AgeValidator();
 
     public Decision calculateApprovedLoan(String personalCode, Long loanAmount, int loanPeriod)
@@ -26,11 +26,11 @@ public class DecisionEngine {
         verifyInputs(personalCode, loanAmount, loanPeriod);
         LocalDate birthDate;
         try {
-            birthDate = personalCodeParser.getBirthDate(personalCode);
+            birthDate = personalCodeHandler.getBirthDate(personalCode);
         } catch (DateTimeException e) {
             throw new InvalidPersonalCodeException("Invalid personal ID code!");
         }
-        String countryCode = personalCodeParser.getCountryCode(personalCode);
+        String countryCode = personalCodeHandler.getCountryCode(personalCode);
 
         if (!ageValidator.isEligible(birthDate, countryCode)) {
             throw new NoValidLoanException(ageValidator.getRejectionReason(birthDate, countryCode));
